@@ -39,9 +39,9 @@ export function getGeminiEmbeddings(): GeminiEmbeddings1536 {
   });
 }
 
-export function getChatModel(streaming = false): ChatGoogleGenerativeAI {
+export function getChatModel(streaming = false, modelOverride?: string): ChatGoogleGenerativeAI {
   const apiKey = process.env.GEMINI_API_KEY;
-  const modelName = process.env.GEMINI_MODEL || 'gemini-3.8-flash';
+  const modelName = modelOverride || process.env.GEMINI_MODEL || 'gemini-3.8-flash';
   if (!apiKey) {
     console.warn('[Gemini Warning] GEMINI_API_KEY is not set in environment variables.');
   }

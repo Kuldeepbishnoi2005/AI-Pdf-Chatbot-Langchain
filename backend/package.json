@@ -8,6 +8,7 @@
     "start": "node dist/server.js",
     "dev": "tsx watch src/server.ts",
     "typecheck": "tsc --noEmit",
+    "test": "tsx --test test/gemini-retry.test.ts",
     "langgraph:dev": "langgraph dev"
   },
   "dependencies": {

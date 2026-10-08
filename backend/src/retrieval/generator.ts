@@ -1,5 +1,6 @@
 import { SystemMessage, HumanMessage, AIMessage } from '@langchain/core/messages';
 import { getChatModel } from '../shared/gemini.js';
+import { executeWithRetryAndFallback } from '../shared/gemini-retry.js';
 import { SearchResultDoc, SourceReference } from '../shared/types.js';
 
 export function constructContextAndSources(retrievedDocs: SearchResultDoc[]) {
@@ -45,8 +46,6 @@ export async function generateAnswerWithContext(
   chatHistory: Array<{ role: 'user' | 'assistant'; content: string }> = [],
   onToken?: (token: string) => void
 ): Promise<string> {
-  const chatModel = getChatModel(Boolean(onToken));
-
   const systemPrompt = `You are a helpful, precise AI assistant that answers user questions based ONLY on the provided PDF document context.
 
 DOCUMENT CONTEXT:
@@ -76,7 +75,12 @@ INSTRUCTIONS:
 
   if (onToken) {
     let fullAnswer = '';
-    const stream = await chatModel.stream(messages);
+    // Obtain stream using retry & fallback BEFORE piping tokens
+    const stream = await executeWithRetryAndFallback(async (modelName) => {
+      const chatModel = getChatModel(true, modelName);
+      return await chatModel.stream(messages);
+    });
+
     for await (const chunk of stream) {
       const text = typeof chunk.content === 'string' ? chunk.content : JSON.stringify(chunk.content);
       if (text) {
@@ -86,7 +90,11 @@ INSTRUCTIONS:
     }
     return fullAnswer;
   } else {
-    const response = await chatModel.invoke(messages);
+    const response = await executeWithRetryAndFallback(async (modelName) => {
+      const chatModel = getChatModel(false, modelName);
+      return await chatModel.invoke(messages);
+    });
+
     return typeof response.content === 'string'
       ? response.content
       : JSON.stringify(response.content);

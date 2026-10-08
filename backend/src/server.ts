@@ -112,28 +112,35 @@ app.post('/api/chat', async (req: Request, res: Response) => {
     }
 
     if (stream) {
-      // Set SSE headers for streaming responses
-      res.setHeader('Content-Type', 'text/event-stream');
-      res.setHeader('Cache-Control', 'no-cache');
-      res.setHeader('Connection', 'keep-alive');
-
       // 1. Retrieve vector matches
       const retrievedDocs = await searchVectorStore(question, 5);
       const { contextText, sources } = constructContextAndSources(retrievedDocs);
 
-      // Send sources metadata event first
-      res.write(`data: ${JSON.stringify({ type: 'sources', sources })}\n\n`);
+      let headersCommitted = false;
 
-      // 2. Stream tokens from LLM
+      const ensureSseHeaders = () => {
+        if (!headersCommitted && !res.headersSent) {
+          res.setHeader('Content-Type', 'text/event-stream');
+          res.setHeader('Cache-Control', 'no-cache');
+          res.setHeader('Connection', 'keep-alive');
+          res.write(`data: ${JSON.stringify({ type: 'sources', sources })}\n\n`);
+          headersCommitted = true;
+        }
+      };
+
+      // 2. Stream tokens from LLM (retries and fallback execute before tokens are piped)
       await generateAnswerWithContext(
         question,
         contextText,
         chatHistory,
         (token: string) => {
+          ensureSseHeaders();
           res.write(`data: ${JSON.stringify({ type: 'token', token })}\n\n`);
         }
       );
 
+      // If response contained no tokens, commit headers now to send sources & done
+      ensureSseHeaders();
       res.write(`data: ${JSON.stringify({ type: 'done' })}\n\n`);
       res.end();
     } else {
@@ -152,8 +159,8 @@ app.post('/api/chat', async (req: Request, res: Response) => {
   } catch (error) {
     console.error('[API /chat Error]:', error);
     if (!res.headersSent) {
-      res.status(500).json({
-        error: (error as Error).message || 'Failed to process question answering.',
+      res.status(503).json({
+        error: (error as Error).message || 'The AI service is temporarily busy. Please try again shortly.',
       });
     } else {
       res.write(`data: ${JSON.stringify({ type: 'error', error: (error as Error).message })}\n\n`);
