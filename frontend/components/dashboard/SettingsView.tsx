@@ -13,6 +13,7 @@ import {
   Zap,
 } from 'lucide-react';
 import { ApiClient } from '@/lib/api-client';
+import { InstallButton } from '../pwa/InstallButton';
 
 interface SettingsViewProps {
   apiUrl: string;
@@ -146,6 +147,28 @@ export const SettingsView: React.FC<SettingsViewProps> = ({
               <span className="text-subtext font-medium block">Orchestration Framework</span>
               <span className="font-mono text-heading font-bold">LangGraph + LangChain JS</span>
             </div>
+          </div>
+        </div>
+
+        {/* Progressive Web App Status & Installation */}
+        <div className="bg-surface rounded-2xl border border-border p-5 shadow-card space-y-4 md:col-span-2">
+          <div className="flex items-center justify-between border-b border-border pb-3">
+            <h3 className="font-bold text-heading text-sm flex items-center gap-2">
+              <ShieldCheck className="w-4 h-4 text-primary-600" /> Progressive Web App (PWA)
+            </h3>
+            <span className="text-xs font-semibold text-primary-700 bg-primary-50 px-2.5 py-0.5 rounded-full border border-primary-200">
+              Standalone Ready
+            </span>
+          </div>
+
+          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 bg-background p-4 rounded-xl border border-border">
+            <div className="space-y-1 text-xs">
+              <div className="font-bold text-heading">PWA Installation & Offline Support</div>
+              <p className="text-subtext">
+                Install AI PDF Chatbot on Windows, macOS, Android, or iOS for a native standalone application experience.
+              </p>
+            </div>
+            <InstallButton variant="settings" />
           </div>
         </div>
       </div>

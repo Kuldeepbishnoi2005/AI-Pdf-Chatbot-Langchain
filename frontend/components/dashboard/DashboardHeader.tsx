@@ -3,6 +3,7 @@
 import React from 'react';
 import { Search, Server, CheckCircle2, AlertCircle, User } from 'lucide-react';
 import { TabType } from './Sidebar';
+import { InstallButton } from '../pwa/InstallButton';
 
 interface DashboardHeaderProps {
   activeTab: TabType;
@@ -75,6 +76,9 @@ export const DashboardHeader: React.FC<DashboardHeaderProps> = ({
             <span className="text-subtext animate-pulse">Checking...</span>
           )}
         </div>
+
+        {/* PWA Install Button */}
+        <InstallButton variant="header" />
 
         {/* Profile / Workspace Badge */}
         <div className="h-9 w-9 rounded-xl bg-primary-100 text-primary-700 font-bold flex items-center justify-center border border-primary-200">

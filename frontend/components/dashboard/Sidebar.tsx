@@ -12,6 +12,7 @@ import {
   AlertCircle,
   Sparkles,
 } from 'lucide-react';
+import { InstallButton } from '../pwa/InstallButton';
 
 export type TabType = 'dashboard' | 'documents' | 'chat' | 'settings';
 
@@ -111,6 +112,11 @@ export const Sidebar: React.FC<SidebarProps> = ({
           );
         })}
       </nav>
+
+      {/* PWA Install Button Card */}
+      <div className="px-4 pb-2">
+        <InstallButton variant="sidebar" />
+      </div>
 
       {/* Footer System Status Card */}
       <div className="p-4 border-t border-border/60">
