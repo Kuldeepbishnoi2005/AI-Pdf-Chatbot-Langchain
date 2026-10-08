@@ -1,0 +1,8 @@
+{
+  "dependencies": ["."],
+  "graphs": {
+    "ingestion_graph": "./src/ingestion/graph.ts:ingestionGraph",
+    "retrieval_graph": "./src/retrieval/graph.ts:retrievalGraph"
+  },
+  "env": ".env"
+}

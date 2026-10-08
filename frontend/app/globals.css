@@ -1,0 +1,34 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  body {
+    @apply bg-background text-heading font-sans antialiased overflow-x-hidden min-h-screen selection:bg-primary-100 selection:text-primary-700;
+  }
+}
+
+/* Custom Clean Webkit Scrollbars for Light Dashboard */
+::-webkit-scrollbar {
+  width: 6px;
+  height: 6px;
+}
+
+::-webkit-scrollbar-track {
+  background: #F7F6FB;
+}
+
+::-webkit-scrollbar-thumb {
+  background: #E8E6EF;
+  border-radius: 9999px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: #D8C7FF;
+}
+
+/* Smooth Focus Ring System */
+:focus-visible {
+  outline: 2px solid #5925BC;
+  outline-offset: 2px;
+}
