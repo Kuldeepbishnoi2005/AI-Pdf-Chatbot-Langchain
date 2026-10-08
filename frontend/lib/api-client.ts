@@ -1,14 +1,18 @@
 import { SourceReference, IndexedDocument } from './types';
 
-const BASE_URL =
-  process.env.NEXT_PUBLIC_API_URL ||
-  process.env.NEXT_PUBLIC_LANGGRAPH_API_URL ||
-  'http://localhost:2024';
+export const getApiBaseUrl = (): string => {
+  const url =
+    process.env.NEXT_PUBLIC_API_URL ||
+    process.env.NEXT_PUBLIC_LANGGRAPH_API_URL ||
+    'http://localhost:2024';
+  return url.trim().replace(/\/+$/, '');
+};
 
 export class ApiClient {
   static async checkBackendHealth(): Promise<boolean> {
     try {
-      const res = await fetch(`${BASE_URL}/health`, { method: 'GET', cache: 'no-store' });
+      const baseUrl = getApiBaseUrl();
+      const res = await fetch(`${baseUrl}/health`, { method: 'GET', cache: 'no-store' });
       if (!res.ok) return false;
       const data = await res.json();
       return data.status === 'ok';
@@ -27,8 +31,9 @@ export class ApiClient {
       formData.append('files', file);
     }
 
-    onProgress?.('Uploading to LangGraph server...');
-    const response = await fetch(`${BASE_URL}/api/ingest`, {
+    onProgress?.('Uploading to backend server...');
+    const baseUrl = getApiBaseUrl();
+    const response = await fetch(`${baseUrl}/api/ingest`, {
       method: 'POST',
       body: formData,
     });
@@ -47,7 +52,8 @@ export class ApiClient {
 
   static async fetchIndexedDocuments(): Promise<IndexedDocument[]> {
     try {
-      const res = await fetch(`${BASE_URL}/api/documents`, { cache: 'no-store' });
+      const baseUrl = getApiBaseUrl();
+      const res = await fetch(`${baseUrl}/api/documents`, { cache: 'no-store' });
       if (!res.ok) return [];
       const data = await res.json();
       return data.documents || [];
@@ -58,7 +64,8 @@ export class ApiClient {
 
   static async deleteDocument(filename: string): Promise<boolean> {
     try {
-      const res = await fetch(`${BASE_URL}/api/documents/${encodeURIComponent(filename)}`, {
+      const baseUrl = getApiBaseUrl();
+      const res = await fetch(`${baseUrl}/api/documents/${encodeURIComponent(filename)}`, {
         method: 'DELETE',
       });
       return res.ok;
@@ -78,7 +85,8 @@ export class ApiClient {
     }
   ): Promise<void> {
     try {
-      const response = await fetch(`${BASE_URL}/api/chat`, {
+      const baseUrl = getApiBaseUrl();
+      const response = await fetch(`${baseUrl}/api/chat`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',

@@ -13,11 +13,31 @@ dotenv.config();
 const app = express();
 const PORT = process.env.PORT || 2024;
 
-// Enable CORS and JSON body parsing
-const allowedOrigins = process.env.CORS_ALLOWED_ORIGINS
-  ? process.env.CORS_ALLOWED_ORIGINS.split(',').map((s) => s.trim())
-  : '*';
+const parseCorsOrigins = (): string | string[] => {
+  const envValue = process.env.CORS_ALLOWED_ORIGINS;
+  if (!envValue || envValue.trim() === '*' || envValue.trim() === '') {
+    return '*';
+  }
+  const origins = envValue
+    .split(',')
+    .map((s) => s.trim().replace(/\/+$/, ''))
+    .filter(Boolean);
 
+  const defaults = [
+    'http://localhost:3000',
+    'https://ai-pdf-chatbot-langchain-nine-flax.vercel.app',
+    'https://ai-pdf-chatbot-langchain-pine-flax.vercel.app',
+  ];
+  for (const def of defaults) {
+    if (!origins.includes(def)) {
+      origins.push(def);
+    }
+  }
+
+  return origins;
+};
+
+const allowedOrigins = parseCorsOrigins();
 app.use(cors({ origin: allowedOrigins }));
 app.use(express.json({ limit: '50mb' }));
 app.use(express.urlencoded({ extended: true, limit: '50mb' }));
